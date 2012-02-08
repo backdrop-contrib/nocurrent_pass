@@ -1,0 +1,4 @@
+name = No Current Password
+description = Make the "current password" requirement on the user edit form optional.
+package = Other
+core = 7.x

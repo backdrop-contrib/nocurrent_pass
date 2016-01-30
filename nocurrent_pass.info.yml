@@ -1,6 +1,6 @@
 name: 'No Current Password'
 description: 'Make the "current password" requirement on the user edit form optional.'
 core: 8.x
+configure: entity.user.admin_form
 package: 'User interface'
 type: module
-version: VERSION

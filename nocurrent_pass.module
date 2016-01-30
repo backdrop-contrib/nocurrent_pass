@@ -1,12 +1,12 @@
 <?php
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function nocurrent_pass_form_user_admin_settings_alter(&$form, &$form_state) {
-  // reorder fieldset weights
+function nocurrent_pass_form_user_admin_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 	$config = \Drupal::config('nocurrent_pass.settings');
 	$settings = $config->get();
   $form['anonymous_settings']['#weight'] = -4;
@@ -33,9 +33,9 @@ function nocurrent_pass_form_user_admin_settings_alter(&$form, &$form_state) {
  * @see nocurrent_pass_form_user_admin_settings_alter()
  */
 function nocurrent_pass_form_user_admin_settings_submit($form, FormStateInterface &$form_state) {
-	\Drupal::config('nocurrent_pass.settings')
-		->set('nocurrent_pass_disabled', $form_state->getValue('nocurrent_pass_disabled'))
-		->save();
+  \Drupal::configFactory()->getEditable('nocurrent_pass.settings')
+    ->set('nocurrent_pass_disabled', $form_state->getValue('nocurrent_pass_disabled'))
+    ->save();
 }
 
 /**
@@ -43,18 +43,34 @@ function nocurrent_pass_form_user_admin_settings_submit($form, FormStateInterfac
  * Remove the current password field from the user_profile_form form (user/%/edit).
  */
 function nocurrent_pass_form_alter(&$form, &$form_state, $form_id) {
-	$config = \Drupal::config('nocurrent_pass.settings');
-	$settings = $config->get();
+
 	if ($form_id == 'user_form') {
+    $config = \Drupal::config('nocurrent_pass.settings');
+    $settings = $config->get();
 	  if ($settings['nocurrent_pass_disabled']) {
-	    // searches the #validate array for the current_pass validation function, and removes it
-	    $key = array_search('user_validate_current_pass', $form['#validate']);
-	    if ($key !== FALSE) {
-	      unset($form['#validate'][$key]);
-	    }
 	    // hide the current password fields
 	    $form['account']['current_pass_required_value']['#access'] = FALSE;
 	    $form['account']['current_pass']['#access'] = FALSE;
 	  }
 	}
+}
+
+/**
+ * Implements hook_entity_base_field_info_alter().
+ */
+function nocurrent_pass_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
+  if ($entity_type->id() == 'user') {
+    $config = \Drupal::config('nocurrent_pass.settings');
+    $settings = $config->get();
+    if ($settings['nocurrent_pass_disabled']) {
+      // Unset validation for current password.
+      $constraints = $fields['mail']->getConstraints();
+      unset($constraints['ProtectedUserField']);
+      $fields['mail']->setConstraints($constraints);
+
+      $constraints = $fields['pass']->getConstraints();
+      unset($constraints['ProtectedUserField']);
+      $fields['pass']->setConstraints($constraints);
+    }
+  }
 }

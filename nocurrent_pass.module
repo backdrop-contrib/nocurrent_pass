@@ -14,7 +14,7 @@ function nocurrent_pass_config_info() {
  */
 function nocurrent_pass_form_user_admin_settings_alter(&$form, &$form_state) {
   // reorder fieldset weights
-    $config = config('nocurrent_pass.settings');
+  $config = config('nocurrent_pass.settings');
   $form['nocurrent_pass'] = array(
     '#type' => 'fieldset',
     '#title' => t('Require Current Password'),
@@ -35,7 +35,7 @@ function nocurrent_pass_form_user_admin_settings_alter(&$form, &$form_state) {
  * Remove the current password field from the user_profile_form form (user/%/edit).
  */
 function nocurrent_pass_form_user_profile_form_alter(&$form, &$form_state) {
-    $config = config('nocurrent_pass.settings');
+  $config = config('nocurrent_pass.settings');
     
   if ($config->get('disabled') == 1) {
     // searches the #validate array for the current_pass validation function, and removes it

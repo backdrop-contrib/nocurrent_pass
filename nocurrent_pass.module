@@ -13,7 +13,6 @@ function nocurrent_pass_config_info() {
  * Implements hook_form_FORM_ID_alter().
  */
 function nocurrent_pass_form_user_admin_settings_alter(&$form, &$form_state) {
-  // reorder fieldset weights
   $config = config('nocurrent_pass.settings');
   $form['nocurrent_pass'] = array(
     '#type' => 'fieldset',
